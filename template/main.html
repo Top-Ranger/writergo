@@ -50,6 +50,7 @@
     }
     
     var active = false;
+    var changed = false;
 
     var hostname = window.location.hostname;
     var path = window.location.pathname;
@@ -64,7 +65,7 @@
     };
 
     ws.onopen = function() {
-      setOffline(false)
+      setOffline(false);
     };
 
     ws.onmessage = function(event){
@@ -80,8 +81,8 @@
       if(data.Comm === "state") {
         try {
           if(!active) {
-            document.getElementById("editor").value = data.Data
-            lastSync = data.Data
+            document.getElementById("editor").value = data.Data;
+            changed = false;
           }
         } catch (e) {
           console.log(e);
@@ -90,7 +91,7 @@
       }
       if(data.Comm === "number_user") {
         try {
-          document.getElementById("user").value = data.Data
+          document.getElementById("user").value = data.Data;
         } catch (e) {
           console.log(e);
           ws.close();
@@ -98,9 +99,10 @@
       }
       if(data.Comm === "can_not_write") {
         try {
-          document.getElementById("editor").readOnly = true
-          pushState()
-          active = false
+          changed = true;
+          document.getElementById("editor").readOnly = true;
+          pushState();
+          active = false;
           document.getElementById("active").removeAttribute("disabled");
         } catch (e) {
           console.log(e);
@@ -110,8 +112,9 @@
       if(data.Comm === "can_write") {
         try {
           document.getElementById("editor").removeAttribute("readonly");
-          pushState()
-          active = true
+          pushState();
+          active = true;
+          changed = true;
         } catch (e) {
           console.log(e);
           ws.close();
@@ -133,10 +136,17 @@
     };
 
     function pushState() {
-      if(active) {
+      if(active && changed) {
         ws.send(JSON.stringify({"Comm": "state", "Data": document.getElementById("editor").value}));
+        changed = false;
       }
     }
+
+    document.getElementById("editor").addEventListener("input", function(e){
+      if(e) {
+        changed = true;
+      }
+    });
 
     document.getElementById("active").addEventListener("click", function(){
       document.getElementById("active").disabled = true; 
