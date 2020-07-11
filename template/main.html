@@ -95,7 +95,6 @@
       var data = JSON.parse(event.data);
       if(data.Comm === "get_initial") {
         try {
-          console.log(JSON.stringify(quill.getContents()))
           ws.send(JSON.stringify({"Comm": "current_state", "Data": JSON.stringify(quill.getContents())}));
         } catch (e) {
           console.log(e);
