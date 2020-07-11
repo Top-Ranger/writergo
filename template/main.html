@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/css/quill.snow.css">
   <link rel="stylesheet" href="/css/writergo.css">
   <script src="/js/quill.js"></script>
+  <script src="/js/image-resize.min.js"></script>
   <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
 </head>
 
@@ -54,6 +55,7 @@
     var quill = new Quill('#editor', {
       theme: 'snow',
       modules: {
+        imageResize: {},
         toolbar: [
               [{ 'header': [1, 2, 3, false] }],
               ['bold', 'italic', 'underline', 'strike'],
