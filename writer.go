@@ -83,7 +83,7 @@ initialLoop:
 			continue initialLoop
 		}
 
-		t := time.NewTimer(500 * time.Millisecond)
+		t := time.NewTimer(time.Duration(config.SyncSeconds) * time.Second)
 		select {
 		case initialState = <-w.initial.c:
 			if !t.Stop() {
@@ -168,7 +168,7 @@ func (w *writer) changeActive(key string) {
 	}
 	w.l.Unlock()
 
-	time.Sleep(time.Duration(config.SyncSeconds) * time.Second * 2)
+	time.Sleep(time.Duration(config.SyncSeconds) * time.Second)
 
 	w.l.Lock()
 	defer w.l.Unlock()

@@ -137,9 +137,9 @@
       if(data.Comm === "can_write") {
         try {
           quill.enable()
-          pushState();
           active = true;
           changed = true;
+          pushState();
         } catch (e) {
           console.log(e);
           ws.close();

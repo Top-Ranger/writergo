@@ -56,7 +56,7 @@ var robottxt = []byte(`User-agent: *
 Disallow: /`)
 
 func init() {
-	upgrader.HandshakeTimeout = 5 * time.Second
+	upgrader.HandshakeTimeout = 30 * time.Second
 
 	b, err := ioutil.ReadFile("template/text.html")
 	if err != nil {
