@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html lang="{{.Translation.Language}}">
+
+<head>
+  <title>WriterGo!</title>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="author" content="Marcus Soll"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="author" href="https://msoll.eu/">
+  <link rel="stylesheet" href="/css/writergo.css">
+  <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
+</head>
+
+<body>
+  <header>
+    <div style="margin-left: 1%">
+      WriterGo!
+    </div>
+  </header>
+
+  <div class="message">
+      <p>{{.Translation.NoSave}}</p>
+  </div>
+
+  <div id="app">
+      <p>{{.Translation.ConnectedUser}}: <input id="user" type="text" readonly></p>
+      <h1 class="offline">{{.Translation.ConnectionLost}}</h1>
+      <textarea id="editor" style="height: 60vh; width: 100%" readonly></textarea>
+      <h1 class="offline">{{.Translation.ConnectionLost}}</h1>
+      <p><button id="active">{{.Translation.ButtonActive}}</button></p>
+  </div>
+
+  <footer>
+    <div>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/" target="_blank"><u>Marcus Soll</u></a> - <a href="/impressum.html" target="_blank"><u>{{.Translation.Impressum}}</u></a> - <a href="/dsgvo.html" target="_blank"><u>{{.Translation.PrivacyPolicy}}</u></a>
+    </div>
+  </footer>
+
+  <script>
+    function setOffline(b) {
+      var e = document.getElementsByClassName("offline");
+      for(var i = 0; i < e.length; i++) {
+        if(b) {
+          e[i].removeAttribute('hidden');
+        } else {
+          e[i].hidden = true;
+        }
+      }
+    }
+    
+    var active = false;
+
+    var hostname = window.location.hostname;
+    var path = window.location.pathname;
+    var port = window.location.port;
+    var protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    var ws = new WebSocket(protocol + '://' + hostname + ":" + port + path + "?ws=1");
+
+    ws.onclose = function () {
+      setOffline(true);
+      document.getElementById("user").value = "";
+      document.getElementById("editor").readOnly = true;
+    };
+
+    ws.onopen = function() {
+      setOffline(false)
+    };
+
+    ws.onmessage = function(event){
+      var data = JSON.parse(event.data);
+      if(data.Comm === "get_initial") {
+        try {
+          ws.send(JSON.stringify({"Comm": "current_state", "Data": document.getElementById("editor").value}));
+        } catch (e) {
+          console.log(e);
+          ws.close();
+        }
+      }
+      if(data.Comm === "state") {
+        try {
+          if(!active) {
+            document.getElementById("editor").value = data.Data
+            lastSync = data.Data
+          }
+        } catch (e) {
+          console.log(e);
+          ws.close();
+        }
+      }
+      if(data.Comm === "number_user") {
+        try {
+          document.getElementById("user").value = data.Data
+        } catch (e) {
+          console.log(e);
+          ws.close();
+        }
+      }
+      if(data.Comm === "can_not_write") {
+        try {
+          document.getElementById("editor").readOnly = true
+          pushState()
+          active = false
+          document.getElementById("active").removeAttribute("disabled");
+        } catch (e) {
+          console.log(e);
+          ws.close();
+        }
+      }
+      if(data.Comm === "can_write") {
+        try {
+          document.getElementById("editor").removeAttribute("readonly");
+          pushState()
+          active = true
+        } catch (e) {
+          console.log(e);
+          ws.close();
+        }
+      }
+    };
+
+    window.onbeforeunload = function(e) {
+      if(document.getElementById("editor").value !== "") {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.onunload = function(){
+      try{
+        ws.close(1001);
+      } catch {}
+    };
+
+    function pushState() {
+      if(active) {
+        ws.send(JSON.stringify({"Comm": "state", "Data": document.getElementById("editor").value}));
+      }
+    }
+
+    document.getElementById("active").addEventListener("click", function(){
+      document.getElementById("active").disabled = true; 
+      try{
+        ws.send(JSON.stringify({"Comm": "write"}));
+      } catch (e) {
+        console.log(e);
+        ws.close();
+      }
+      });
+
+    setInterval(pushState, {{.SyncTime}});
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,8 @@
+ {
+    "Language": "en",
+    "Address": "localhost:8782",
+    "PathImpressum": "impressum.md",
+    "PathDSGVO": "DSGVO.md",
+    "SyncSeconds": 1,
+    "GCMinutes": 60
+ }
