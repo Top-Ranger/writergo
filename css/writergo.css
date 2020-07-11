@@ -124,16 +124,14 @@ pre {
     text-align: center;
 }
 
-.starlist {
-    list-style: none;
-    padding-left: 1ch;
-}
-
-.starlist li::before {
-    padding-right: 1ch;
-    content: "★";
-}
-
 .whitefont {
     color: white;
+}
+
+.ql-container {
+    height: 60vh;
+}
+
+.ql-disabled {
+    background-color: var(--primary-colour);
 }

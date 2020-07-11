@@ -8,7 +8,9 @@
   <meta name="author" content="Marcus Soll"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="author" href="https://msoll.eu/">
+  <link rel="stylesheet" href="/css/quill.snow.css">
   <link rel="stylesheet" href="/css/writergo.css">
+  <script src="/js/quill.js"></script>
   <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
 </head>
 
@@ -26,7 +28,7 @@
   <div id="app">
       <p>{{.Translation.ConnectedUser}}: <input id="user" type="text" readonly></p>
       <h1 class="offline">{{.Translation.ConnectionLost}}</h1>
-      <textarea id="editor" style="height: 60vh; width: 100%" readonly></textarea>
+      <div id="editor"></div>
       <h1 class="offline">{{.Translation.ConnectionLost}}</h1>
       <p><button id="active">{{.Translation.ButtonActive}}</button></p>
   </div>
@@ -48,6 +50,25 @@
         }
       }
     }
+
+    var quill = new Quill('#editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+              [{ 'header': [1, 2, 3, false] }],
+              ['bold', 'italic', 'underline', 'strike'],
+              ['blockquote', 'code-block'],
+              [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+              [{ 'script': 'sub' }, { 'script': 'super' }],
+              [{ 'indent': '-1' }, { 'indent': '+1' }],
+              [{ 'color': [] }, { 'background': [] }],
+              [{ 'align': [] }],
+              ['clean'],
+              ['link', 'image']
+            ]
+      }
+    });
+    quill.disable();
     
     var active = false;
     var changed = false;
@@ -61,7 +82,7 @@
     ws.onclose = function () {
       setOffline(true);
       document.getElementById("user").value = "";
-      document.getElementById("editor").readOnly = true;
+      quill.disable();
     };
 
     ws.onopen = function() {
@@ -72,7 +93,8 @@
       var data = JSON.parse(event.data);
       if(data.Comm === "get_initial") {
         try {
-          ws.send(JSON.stringify({"Comm": "current_state", "Data": document.getElementById("editor").value}));
+          console.log(JSON.stringify(quill.getContents()))
+          ws.send(JSON.stringify({"Comm": "current_state", "Data": JSON.stringify(quill.getContents())}));
         } catch (e) {
           console.log(e);
           ws.close();
@@ -80,8 +102,9 @@
       }
       if(data.Comm === "state") {
         try {
-          if(!active) {
-            document.getElementById("editor").value = data.Data;
+          if(!active && data.Data != "") {
+            var content = JSON.parse(data.Data)
+            quill.setContents(content);
             changed = false;
           }
         } catch (e) {
@@ -100,7 +123,7 @@
       if(data.Comm === "can_not_write") {
         try {
           changed = true;
-          document.getElementById("editor").readOnly = true;
+          quill.disable()
           pushState();
           active = false;
           document.getElementById("active").removeAttribute("disabled");
@@ -111,7 +134,7 @@
       }
       if(data.Comm === "can_write") {
         try {
-          document.getElementById("editor").removeAttribute("readonly");
+          quill.enable()
           pushState();
           active = true;
           changed = true;
@@ -123,7 +146,7 @@
     };
 
     window.onbeforeunload = function(e) {
-      if(document.getElementById("editor").value !== "") {
+      if(quill.getText() !== "\n") {
         e.preventDefault();
         e.returnValue = '';
       }
@@ -137,15 +160,13 @@
 
     function pushState() {
       if(active && changed) {
-        ws.send(JSON.stringify({"Comm": "state", "Data": document.getElementById("editor").value}));
+        ws.send(JSON.stringify({"Comm": "state", "Data": JSON.stringify(quill.getContents())}));
         changed = false;
       }
     }
 
-    document.getElementById("editor").addEventListener("input", function(e){
-      if(e) {
-        changed = true;
-      }
+    quill.on('text-change', function(e){
+      changed = true;
     });
 
     document.getElementById("active").addEventListener("click", function(){

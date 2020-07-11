@@ -124,7 +124,7 @@ func initialiseServer() error {
 	})
 
 	// static files
-	for _, d := range []string{"css/", "static/", "font/"} {
+	for _, d := range []string{"css/", "static/", "font/", "js/"} {
 		filepath.Walk(d, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				log.Panicln("server: Error wile caching files:", err)
