@@ -87,6 +87,7 @@
     ws.onclose = function () {
       setOffline(true);
       document.getElementById("user").value = "";
+      document.getElementById("active").disabled = true;
       quill.disable();
     };
 
