@@ -9,7 +9,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="author" href="https://msoll.eu/">
   <link rel="stylesheet" href="/css/quill.snow.css">
+  <link rel="stylesheet" href="/css/vs2015.css">
   <link rel="stylesheet" href="/css/writergo.css">
+  <script src="/js/highlight.pack.js"></script>
   <script src="/js/quill.js"></script>
   <script src="/js/image-resize.min.js"></script>
   <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
@@ -55,6 +57,7 @@
     var quill = new Quill('#editor', {
       theme: 'snow',
       modules: {
+        syntax: true,
         imageResize: {},
         toolbar: [
               [{ 'header': [1, 2, 3, false] }],
