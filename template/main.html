@@ -17,6 +17,7 @@
   <script src="/js/quill.js"></script>
   <script src="/js/image-resize.min.js"></script>
   <script src="/js/QuillDeltaToHtmlConverter.bundle.js"></script>
+  <script src="/js/markdownToolbar.min.js"></script>
   <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
 </head>
 
@@ -57,12 +58,18 @@
       }
     }
 
+    Quill.register({
+      'modules/markdown-toolbar': MarkdownToolbar
+    });
+
     var quill = new Quill('#editor', {
       theme: 'snow',
       modules: {
         syntax: true,
         imageResize: {},
-        toolbar: [
+        'markdown-toolbar': true,
+        toolbar: {
+          container: [
               [{ 'header': [1, 2, 3, false] }],
               ['bold', 'italic', 'underline', 'strike'],
               ['blockquote', 'code-block'],
@@ -71,9 +78,13 @@
               [{ 'indent': '-1' }, { 'indent': '+1' }],
               [{ 'color': [] }, { 'background': [] }],
               [{ 'align': [] }],
-              ['clean'],
+              ['clean', 'markdown'],
               ['formula', 'image', 'link']
-            ]
+            ],
+          handlers: {
+            'markdown': function () {}
+          }
+        }
       }
     });
     quill.disable();
