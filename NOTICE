@@ -29,3 +29,5 @@ WriterGo! is bundeled with the Oxygen font, which is licenced under the SIL Open
 WriterGo! is bundeled with QuillJS (https://quilljs.com/), which is licenced under the BSD 3-Clause License.
 WriterGo! is bundeled with the Quill ImageResize Module (https://github.com/kensnyder/quill-image-resize-module), which is licenced under the MIT License.
 WriterGo! is bundeled with highlight.js (https://highlightjs.org/), which is licenced under the BSD 3-Clause License.
+WriterGo! is bundeled with the KaTeX (https://katex.org/), which is licenced under the MIT License.
+WriterGo! is bundeled with the KaTeX fonts, which are licenced under the SIL Open Font License, Version 1.1.
