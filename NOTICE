@@ -31,3 +31,4 @@ WriterGo! is bundeled with the Quill ImageResize Module (https://github.com/kens
 WriterGo! is bundeled with highlight.js (https://highlightjs.org/), which is licenced under the BSD 3-Clause License.
 WriterGo! is bundeled with the KaTeX (https://katex.org/), which is licenced under the MIT License.
 WriterGo! is bundeled with the KaTeX fonts, which are licenced under the SIL Open Font License, Version 1.1.
+WriterGo! is bundeled with quill-delta-to-html (https://github.com/nozer/quill-delta-to-html), which are licenced under the MIT License.

@@ -37,6 +37,7 @@ type Translation struct {
 	ConnectedUser  string
 	NoSave         string
 	ButtonActive   string
+	ButtonDownload string
 }
 
 const defaultLanguage = "en"

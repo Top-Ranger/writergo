@@ -6,5 +6,6 @@
     "ConnectionLost": "Verbindung verloren. Bitte Seite neu laden (Inhalt kann verloren gehen).",
     "ConnectedUser": "Verbundene Benutzer",
     "NoSave": "Der Inhalt dieser Seite wird nicht auf der Seite gespeichert. Er geht verloren, sobald der letzte Benutzer die Seite verlässt.",
-    "ButtonActive": "Schreibrechte anfragen"
+    "ButtonActive": "Schreibrechte anfragen",
+    "ButtonDownload": "Inhalt herunterladen"
 }

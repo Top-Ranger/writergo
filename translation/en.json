@@ -6,5 +6,6 @@
     "ConnectionLost": "Connection lost. Please reload page (content might get lost).",
     "ConnectedUser": "Connected user",
     "NoSave": "The content on this site is not saved on the server and is lost when the last user leaves.",
-    "ButtonActive": "Ask for writing permissions"
+    "ButtonActive": "Ask for writing permissions",
+    "ButtonDownload": "Download content"
 }

@@ -8,12 +8,15 @@
   <meta name="author" content="Marcus Soll"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="author" href="https://msoll.eu/">
-  <link rel="stylesheet" href="/css/quill.snow.css">
+  <link rel="stylesheet" href="/css/katex.min.css">
   <link rel="stylesheet" href="/css/vs2015.css">
+  <link rel="stylesheet" href="/css/quill.snow.css">
   <link rel="stylesheet" href="/css/writergo.css">
+  <script src="/js/katex.min.js"></script>
   <script src="/js/highlight.pack.js"></script>
   <script src="/js/quill.js"></script>
   <script src="/js/image-resize.min.js"></script>
+  <script src="/js/QuillDeltaToHtmlConverter.bundle.js"></script>
   <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
 </head>
 
@@ -33,7 +36,7 @@
       <h1 class="offline">{{.Translation.ConnectionLost}}</h1>
       <div id="editor"></div>
       <h1 class="offline">{{.Translation.ConnectionLost}}</h1>
-      <p><button id="active">{{.Translation.ButtonActive}}</button></p>
+      <p><button id="active">{{.Translation.ButtonActive}}</button> <button id="download">{{.Translation.ButtonDownload}}</button></p>
   </div>
 
   <footer>
@@ -69,7 +72,7 @@
               [{ 'color': [] }, { 'background': [] }],
               [{ 'align': [] }],
               ['clean'],
-              ['link', 'image']
+              ['formula', 'image', 'link']
             ]
       }
     });
@@ -182,6 +185,20 @@
         console.log(e);
         ws.close();
       }
+      });
+
+      var downloadLink = document.createElement('a');
+      downloadLink.download = location.pathname.split("/").slice(-1)[0] + ".html"
+      
+      document.getElementById("download").addEventListener("click", function(){
+        var delta = quill.getContents();
+        var converter = new window.QuillDeltaToHtmlConverter(delta.ops, {});
+        var html = converter.convert();
+        html = '<!DOCTYPE HTML><html lang="{{.Translation.Language}}"><head><meta charset="UTF-8"></head><body>' + html + '</body></html>'
+        downloadLink.href = window.URL.createObjectURL(new Blob([html], {type: ' text/html'}));
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
       });
 
     setInterval(pushState, {{.SyncTime}});
