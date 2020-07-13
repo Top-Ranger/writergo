@@ -92,7 +92,7 @@ initialLoop:
 			break initialLoop
 		case <-t.C:
 			log.Println(w.Key, k, "initial timeout:", err)
-			w.Remove(k)
+			go w.Remove(k)
 			continue initialLoop
 		}
 	}
