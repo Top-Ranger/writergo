@@ -79,7 +79,7 @@ initialLoop:
 		err := w.connections[k].WriteJSON(&c)
 		if err != nil {
 			log.Println(w.Key, k, "ask initial state:", err)
-			go w.Remove(k)
+			w.Remove(k)
 			continue initialLoop
 		}
 
@@ -92,7 +92,7 @@ initialLoop:
 			break initialLoop
 		case <-t.C:
 			log.Println(w.Key, k, "initial timeout:", err)
-			go w.Remove(k)
+			w.Remove(k)
 			continue initialLoop
 		}
 	}
@@ -110,26 +110,28 @@ initialLoop:
 
 	log.Println(w.Key, "added:", key)
 
-	go w.push(command{Comm: NUMBER_USER, Data: strconv.Itoa(len(w.connections))}, "")
+	w.push(command{Comm: NUMBER_USER, Data: strconv.Itoa(len(w.connections))}, "")
 
 	return nil
 }
 
 func (w *writer) Remove(key string) {
-	w.l.Lock()
-	defer w.l.Unlock()
+	go func() {
+		w.l.Lock()
+		defer w.l.Unlock()
 
-	conn := w.connections[key]
-	if conn != nil {
-		if err := conn.Close(); err != nil {
-			log.Println(w.Key, "close:", err)
+		conn := w.connections[key]
+		if conn != nil {
+			if err := conn.Close(); err != nil {
+				log.Println(w.Key, "close:", err)
+			}
 		}
-	}
-	delete(w.connections, key)
+		delete(w.connections, key)
 
-	log.Println(w.Key, "removed:", key)
+		log.Println(w.Key, "removed:", key)
 
-	go w.push(command{Comm: NUMBER_USER, Data: strconv.Itoa(len(w.connections))}, "")
+		w.push(command{Comm: NUMBER_USER, Data: strconv.Itoa(len(w.connections))}, "")
+	}()
 }
 
 func (w *writer) CanBeDeleted() bool {
@@ -140,49 +142,53 @@ func (w *writer) CanBeDeleted() bool {
 }
 
 func (w *writer) push(data command, sender string) {
-	w.l.Lock()
-	defer w.l.Unlock()
-	for k := range w.connections {
-		if k != sender {
-			err := w.connections[k].WriteJSON(&data)
-			if err != nil {
-				log.Println(w.Key, k, "write command:", err)
-				go w.Remove(k)
+	go func() {
+		w.l.Lock()
+		defer w.l.Unlock()
+		for k := range w.connections {
+			if k != sender {
+				err := w.connections[k].WriteJSON(&data)
+				if err != nil {
+					log.Println(w.Key, k, "write command:", err)
+					w.Remove(k)
+				}
 			}
 		}
-	}
+	}()
 }
 
 func (w *writer) changeActive(key string) {
-	w.changeActiveLock.Lock()
-	defer w.changeActiveLock.Unlock()
+	go func() {
+		w.changeActiveLock.Lock()
+		defer w.changeActiveLock.Unlock()
 
-	w.l.Lock()
-	conn := w.connections[w.active]
-	if conn != nil {
-		c := command{Comm: STOP_WRITE}
-		err := conn.WriteJSON(&c)
-		if err != nil {
-			go w.Remove(key)
+		w.l.Lock()
+		conn := w.connections[w.active]
+		if conn != nil {
+			c := command{Comm: STOP_WRITE}
+			err := conn.WriteJSON(&c)
+			if err != nil {
+				w.Remove(key)
+			}
 		}
-	}
-	w.l.Unlock()
+		w.l.Unlock()
 
-	time.Sleep(time.Duration(config.SyncSeconds) * time.Second)
+		time.Sleep(time.Duration(config.SyncSeconds) * time.Second)
 
-	w.l.Lock()
-	defer w.l.Unlock()
+		w.l.Lock()
+		defer w.l.Unlock()
 
-	w.active = key
-	conn = w.connections[key]
-	if conn != nil {
-		c := command{Comm: GET_WRITE}
-		err := conn.WriteJSON(&c)
-		if err != nil {
-			go w.Remove(key)
+		w.active = key
+		conn = w.connections[key]
+		if conn != nil {
+			c := command{Comm: GET_WRITE}
+			err := conn.WriteJSON(&c)
+			if err != nil {
+				w.Remove(key)
+			}
 		}
-	}
-	log.Println(w.Key, key, "active")
+		log.Println(w.Key, key, "active")
+	}()
 }
 
 func writerWorker(conn *websocket.Conn, key string, w *writer) {
@@ -193,7 +199,7 @@ func writerWorker(conn *websocket.Conn, key string, w *writer) {
 		if err != nil {
 			// Stop on error - something went wrong
 			log.Println(w.Key, key, "socket error:", err)
-			go w.Remove(key)
+			w.Remove(key)
 			return
 		}
 		switch c.Comm {
@@ -211,12 +217,12 @@ func writerWorker(conn *websocket.Conn, key string, w *writer) {
 			currentActive := w.active
 			w.l.Unlock()
 			if currentActive != key {
-				go w.Remove(key)
+				w.Remove(key)
 				return
 			}
-			go w.push(c, key)
+			w.push(c, key)
 		case ASK_WRITE:
-			go w.changeActive(key)
+			w.changeActive(key)
 		default:
 			log.Println(w.Key, key, "unknown control:", c.Comm)
 		}
