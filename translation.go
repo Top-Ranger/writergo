@@ -36,6 +36,7 @@ type Translation struct {
 	ConnectionLost string
 	ConnectedUser  string
 	NoSave         string
+	OneUser        string
 	ButtonActive   string
 	ButtonDownload string
 }
