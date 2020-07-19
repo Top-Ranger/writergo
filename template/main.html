@@ -145,6 +145,12 @@
         try {
           if(!active && data.Data != "") {
             var content = JSON.parse(data.Data)
+            var err = validateDelta(content);
+            if(err !== null) {
+              alert(err);
+              ws.close(1008)
+              return;
+            }
             quill.setContents(content);
             changed = false;
           }
