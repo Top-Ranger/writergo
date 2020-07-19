@@ -62,7 +62,7 @@
         if(delta.ops[i].retain) {
           return 'retain not allowed'
         }
-        if(i == delta.length -1 && !delta.ops[i].insert.endsWith('\n')) {
+        if(i == delta.ops.length -1 && !delta.ops[i].insert.endsWith('\n')) {
           return 'no \\n at end'
         }
       }
