@@ -37,7 +37,8 @@
       <h1 class="offline">{{.Translation.ConnectionLost}}</h1>
       <div id="editor"></div>
       <h1 class="offline">{{.Translation.ConnectionLost}}</h1>
-      <p><button id="active">{{.Translation.ButtonActive}}</button> <button id="download">{{.Translation.ButtonDownload}}</button></p>
+      <p><button id="active">{{.Translation.ButtonActive}}</button> <button id="downloadHTML">{{.Translation.ButtonDownloadHTML}}</button> <button id="downloadDelta">{{.Translation.ButtonDownloadDelta}}</button></p>
+      <p><input type="file" id="uploadDelta" disabled/> <button id="uploadDeltaButton" disabled>{{.Translation.ButtonUploadDelta}}</button></p>
   </div>
 
   <footer>
@@ -47,6 +48,27 @@
   </footer>
 
   <script>
+    function validateDelta(delta) {
+      if(!delta.ops) {
+        return 'ops missing'
+      }
+      for(var i = 0; i < delta.ops.length; i++) {
+        if(!delta.ops[i].insert) {
+          return 'no insert'
+        }
+        if(delta.ops[i].delete) {
+          return 'delete not allowed'
+        }
+        if(delta.ops[i].retain) {
+          return 'retain not allowed'
+        }
+        if(i == delta.length -1 && !delta.ops[i].insert.endsWith('\n')) {
+          return 'no \\n at end'
+        }
+      }
+      return null
+    }
+
     function setOffline(b) {
       var e = document.getElementsByClassName("offline");
       for(var i = 0; i < e.length; i++) {
@@ -86,6 +108,11 @@
     
     var active = false;
     var changed = false;
+
+    // Ensure it is not cached that these elements are enabled
+    document.getElementById("uploadDeltaButton").disabled = true;
+    document.getElementById("uploadDelta").disabled = true;
+
 
     var hostname = window.location.hostname;
     var path = window.location.pathname;
@@ -141,6 +168,8 @@
           pushState();
           active = false;
           document.getElementById("active").removeAttribute("disabled");
+          document.getElementById("uploadDeltaButton").disabled = true;
+          document.getElementById("uploadDelta").disabled = true;
         } catch (e) {
           console.log(e);
           ws.close();
@@ -151,6 +180,8 @@
           quill.enable()
           active = true;
           changed = true;
+          document.getElementById("uploadDeltaButton").removeAttribute("disabled");
+          document.getElementById("uploadDelta").removeAttribute("disabled");
           pushState();
         } catch (e) {
           console.log(e);
@@ -194,17 +225,66 @@
       });
 
       var downloadLink = document.createElement('a');
-      downloadLink.download = location.pathname.split("/").slice(-1)[0] + ".html"
       
-      document.getElementById("download").addEventListener("click", function(){
+      document.getElementById("downloadHTML").addEventListener("click", function(){
         var delta = quill.getContents();
         var converter = new window.QuillDeltaToHtmlConverter(delta.ops, {});
         var html = converter.convert();
         html = '<!DOCTYPE HTML><html lang="{{.Translation.Language}}"><head><meta charset="UTF-8"></head><body>' + html + '</body></html>'
         downloadLink.href = window.URL.createObjectURL(new Blob([html], {type: ' text/html'}));
+        downloadLink.download = location.pathname.split("/").slice(-1)[0] + ".html"
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
+      });
+
+      document.getElementById("downloadDelta").addEventListener("click", function(){
+        var delta = quill.getContents();
+        delta = JSON.stringify(delta);
+        downloadLink.href = window.URL.createObjectURL(new Blob([delta], {type: ' text/plain'}));
+        downloadLink.download = location.pathname.split("/").slice(-1)[0] + ".delta"
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      });
+
+      document.getElementById("uploadDeltaButton").addEventListener("click", function(){
+        if(!active) {
+          return;
+        }
+        if(document.getElementById("uploadDelta").files.length === 0) {
+          return;
+        }
+        var file = document.getElementById("uploadDelta").files[0];
+        var reader = new FileReader();
+
+        reader.addEventListener('load', function(e) {
+    	    var delta = e.target.result;
+          try {
+            delta = JSON.parse(delta);
+          } catch (e) {
+            alert("Can not read delta");
+            return;
+          }
+          var err = validateDelta(delta);
+          if(err !== null) {
+            alert(err);
+            return;
+          }
+          if(!active) {
+            return;
+          }
+          quill.setContents(delta);
+          changed = true;
+	      });
+
+        reader.addEventListener('error', function() {
+	        alert('Error');
+	      });
+
+        reader.readAsText(file);
+
+        document.getElementById("uploadDelta").rem
       });
 
     setInterval(pushState, {{.SyncTime}});

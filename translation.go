@@ -29,16 +29,18 @@ import (
 
 // Translation represents an object holding all translations
 type Translation struct {
-	Language       string
-	CreatedBy      string
-	Impressum      string
-	PrivacyPolicy  string
-	ConnectionLost string
-	ConnectedUser  string
-	NoSave         string
-	OneUser        string
-	ButtonActive   string
-	ButtonDownload string
+	Language            string
+	CreatedBy           string
+	Impressum           string
+	PrivacyPolicy       string
+	ConnectionLost      string
+	ConnectedUser       string
+	NoSave              string
+	OneUser             string
+	ButtonActive        string
+	ButtonDownloadHTML  string
+	ButtonDownloadDelta string
+	ButtonUploadDelta   string
 }
 
 const defaultLanguage = "en"
