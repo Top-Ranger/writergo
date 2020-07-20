@@ -8,7 +8,7 @@
     "NoSave": "Der Inhalt dieser Seite wird nicht auf der Seite gespeichert. Er geht verloren, sobald der letzte Benutzer die Seite verlässt.",
     "OneUser": "Zu jedem Zeitpunkt kann immer nur ein Benutzer zur Zeit Schreibrechte haben. Werden Schreibrechte von einem Nutzer angefragt, so verliert der andere Benutzer diese.",
     "ButtonActive": "Schreibrechte anfragen",
-    "ButtonDownloadHTML": "Inhalt herunterladen (HTML)",
+    "ButtonDownloadHTML": "Inhalt exportieren (HTML)",
     "ButtonDownloadDelta": "Inhalt herunterladen (delta)",
     "ButtonUploadDelta": "Inhalt hochladen und Editorinhalt ersetzen (delta)"
 }
