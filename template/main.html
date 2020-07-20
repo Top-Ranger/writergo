@@ -186,8 +186,8 @@
           quill.enable()
           active = true;
           changed = true;
-          document.getElementById("uploadDeltaButton").removeAttribute("disabled");
           document.getElementById("uploadDelta").removeAttribute("disabled");
+          enableUpload();
           pushState();
         } catch (e) {
           console.log(e);
@@ -219,6 +219,14 @@
     quill.on('text-change', function(e){
       changed = true;
     });
+
+    function enableUpload() {
+      if(!active || document.getElementById("uploadDelta").files.length === 0) {
+          document.getElementById("uploadDeltaButton").disabled = true;
+        } else {
+          document.getElementById("uploadDeltaButton").removeAttribute("disabled");
+        }
+    }
 
     document.getElementById("active").addEventListener("click", function(){
       document.getElementById("active").disabled = true; 
@@ -290,7 +298,12 @@
 
         reader.readAsText(file);
 
-        document.getElementById("uploadDelta").rem
+        document.getElementById("uploadDelta").value = "";
+        enableUpload();
+      });
+
+      document.getElementById("uploadDelta").addEventListener("change", function(){
+        enableUpload();
       });
 
     setInterval(pushState, {{.SyncTime}});
