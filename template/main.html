@@ -113,6 +113,13 @@
     document.getElementById("uploadDeltaButton").disabled = true;
     document.getElementById("uploadDelta").disabled = true;
 
+    function enableUpload() {
+      if(!active || document.getElementById("uploadDelta").files.length === 0) {
+          document.getElementById("uploadDeltaButton").disabled = true;
+        } else {
+          document.getElementById("uploadDeltaButton").removeAttribute("disabled");
+        }
+    }
 
     var hostname = window.location.hostname;
     var path = window.location.pathname;
@@ -219,14 +226,6 @@
     quill.on('text-change', function(e){
       changed = true;
     });
-
-    function enableUpload() {
-      if(!active || document.getElementById("uploadDelta").files.length === 0) {
-          document.getElementById("uploadDeltaButton").disabled = true;
-        } else {
-          document.getElementById("uploadDeltaButton").removeAttribute("disabled");
-        }
-    }
 
     document.getElementById("active").addEventListener("click", function(){
       document.getElementById("active").disabled = true; 
