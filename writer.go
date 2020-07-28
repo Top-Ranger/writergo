@@ -78,7 +78,9 @@ initialLoop:
 	for k := range w.connections {
 		err := w.connections[k].WriteJSON(&c)
 		if err != nil {
-			log.Println(w.Key, k, "ask initial state:", err)
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure) {
+				log.Println(w.Key, k, "ask initial state:", err)
+			}
 			w.Remove(k)
 			continue initialLoop
 		}
@@ -100,7 +102,9 @@ initialLoop:
 	c = command{Comm: COMMAND_INITIAL_SEND, Data: initialState}
 	err := conn.WriteJSON(&c)
 	if err != nil {
-		log.Println(w.Key, key, "send initial state:", err)
+		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure) {
+			log.Println(w.Key, key, "send initial state:", err)
+		}
 		return err
 	}
 
@@ -149,7 +153,9 @@ func (w *writer) push(data command, sender string) {
 			if k != sender {
 				err := w.connections[k].WriteJSON(&data)
 				if err != nil {
-					log.Println(w.Key, k, "write command:", err)
+					if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure) {
+						log.Println(w.Key, k, "write command:", err)
+					}
 					w.Remove(k)
 				}
 			}
@@ -198,7 +204,9 @@ func writerWorker(conn *websocket.Conn, key string, w *writer) {
 		err := conn.ReadJSON(&c)
 		if err != nil {
 			// Stop on error - something went wrong
-			log.Println(w.Key, key, "socket error:", err)
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure) {
+				log.Println(w.Key, key, "socket error:", err)
+			}
 			w.Remove(key)
 			return
 		}

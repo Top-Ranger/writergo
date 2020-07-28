@@ -145,7 +145,7 @@
           ws.send(JSON.stringify({"Comm": "current_state", "Data": JSON.stringify(quill.getContents())}));
         } catch (e) {
           console.log(e);
-          ws.close();
+          ws.close(4000, e.toString().substring(0, 40));
         }
       }
       if(data.Comm === "state") {
@@ -155,7 +155,7 @@
             var err = validateDelta(content);
             if(err !== null) {
               alert(err);
-              ws.close(1008)
+              ws.close(4000, err.substring(0, 50))
               return;
             }
             quill.setContents(content);
@@ -163,7 +163,7 @@
           }
         } catch (e) {
           console.log(e);
-          ws.close();
+          ws.close(4000, e.toString().substring(0, 40));
         }
       }
       if(data.Comm === "number_user") {
@@ -171,7 +171,7 @@
           document.getElementById("user").value = data.Data;
         } catch (e) {
           console.log(e);
-          ws.close();
+          ws.close(4000, e.toString().substring(0, 40));
         }
       }
       if(data.Comm === "can_not_write") {
@@ -185,7 +185,7 @@
           document.getElementById("uploadDelta").disabled = true;
         } catch (e) {
           console.log(e);
-          ws.close();
+          ws.close(4000, e.toString().substring(0, 40));
         }
       }
       if(data.Comm === "can_write") {
@@ -198,7 +198,7 @@
           pushState();
         } catch (e) {
           console.log(e);
-          ws.close();
+          ws.close(4000, e.toString().substring(0, 40));
         }
       }
     };
@@ -208,12 +208,6 @@
         e.preventDefault();
         e.returnValue = '';
       }
-    };
-
-    window.onunload = function(){
-      try{
-        ws.close(1001);
-      } catch {}
     };
 
     function pushState() {
@@ -233,7 +227,7 @@
         ws.send(JSON.stringify({"Comm": "write"}));
       } catch (e) {
         console.log(e);
-        ws.close();
+        ws.close(4000, e.toString().substring(0, 40));
       }
       });
 
