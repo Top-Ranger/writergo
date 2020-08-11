@@ -237,7 +237,7 @@
         var delta = quill.getContents();
         var converter = new window.QuillDeltaToHtmlConverter(delta.ops, {});
         var html = converter.convert();
-        html = '<!DOCTYPE HTML><html lang="{{.Translation.Language}}"><head><meta charset="UTF-8"><style>@font-face {font-family:"Oxygen";src:local("Oxygen Regular"),local("Oxygen-Regular")}html{font-family:"Oxygen",sans-serif;line-height:1.3;hyphens:auto;height:100%;}ul{list-style-type:disc;}a{color:#06c;}a:visited{color:#06c;}pre{color:whitesmoke;background-color:darkslategrey;padding:1em;}blockquote{border-left:0.5em solid grey;padding-left:1em;margin-left:1em;}</style></head><body>' + html + '</body></html>'
+        html = '<!DOCTYPE HTML><html lang="{{.Translation.Language}}"><head><meta charset="UTF-8"><style>@font-face {font-family:"Oxygen";src:local("Oxygen Regular"),local("Oxygen-Regular")}html{font-family:"Oxygen",sans-serif;line-height:1.3;hyphens:auto;height:100%;}@media print {html{font-size: 11px;}}ul{list-style-type:disc;}a{color:#06c;}a:visited{color:#06c;}pre{color:whitesmoke;background-color:darkslategrey;padding:1em;}blockquote{border-left:0.5em solid grey;padding-left:1em;margin-left:1em;}</style></head><body>' + html + '</body></html>'
         downloadLink.href = window.URL.createObjectURL(new Blob([html], {type: ' text/html'}));
         downloadLink.download = location.pathname.split("/").slice(-1)[0] + ".html"
         document.body.appendChild(downloadLink);
