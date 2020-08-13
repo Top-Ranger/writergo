@@ -9,7 +9,7 @@
 
 @font-face {
     font-family: 'Oxygen';
-    src: local('Oxygen Regular'), local('Oxygen-Regular'), url(/font/Oxygen-Regular.ttf);
+    src: local('Oxygen Regular'), local('Oxygen-Regular'), url({{.ServerPath}}/font/Oxygen-Regular.ttf);
 }
 
 html {

@@ -8,8 +8,8 @@
   <meta name="author" content="Marcus Soll"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="author" href="https://msoll.eu/">
-  <link rel="stylesheet" href="/css/writergo.css">
-  <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="{{.ServerPath}}/css/writergo.css">
+  <link rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/favicon.ico">
 </head>
 
 <body>
@@ -21,12 +21,12 @@
 
   <div>
     {{.Text}}
-    <p><img style="max-width: 500px" src="/static/Logo.svg" alt="Logo"></p>
+    <p><img style="max-width: 500px" src="{{.ServerPath}}/static/Logo.svg" alt="Logo"></p>
   </div>
 
   <footer>
     <div>
-      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="/dsgvo.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/dsgvo.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>

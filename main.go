@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -35,6 +36,7 @@ type ConfigStruct struct {
 	PathDSGVO     string
 	SyncSeconds   int
 	GCMinutes     int
+	ServerPath    string
 }
 
 var config ConfigStruct
@@ -51,6 +53,12 @@ func loadConfig(path string) (ConfigStruct, error) {
 	if err != nil {
 		return ConfigStruct{}, errors.New(fmt.Sprintln("Error while parsing config.json:", err))
 	}
+
+	if !strings.HasPrefix(c.ServerPath, "/") && c.ServerPath != "" {
+		log.Println("load config: ServerPath does not start with '/', adding it as a prefix")
+		c.ServerPath = strings.Join([]string{"/", c.ServerPath}, "")
+	}
+	c.ServerPath = strings.TrimSuffix(c.ServerPath, "/")
 
 	return c, nil
 }

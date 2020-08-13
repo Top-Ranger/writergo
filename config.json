@@ -4,5 +4,6 @@
     "PathImpressum": "impressum.md",
     "PathDSGVO": "DSGVO.md",
     "SyncSeconds": 1,
-    "GCMinutes": 60
+    "GCMinutes": 60,
+    "ServerPath": "/"
  }
