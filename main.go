@@ -81,7 +81,7 @@ func main() {
 
 	RunServer()
 
-	s := make(chan os.Signal)
+	s := make(chan os.Signal, 1)
 	signal.Notify(s, os.Interrupt, syscall.SIGTERM)
 
 	log.Println("main: waiting")
