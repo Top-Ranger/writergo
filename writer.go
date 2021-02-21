@@ -25,13 +25,13 @@ import (
 )
 
 const (
-	COMMAND_INITIAL_ASK  = "get_initial"
-	COMMAND_INITIAL_GET  = "current_state"
-	COMMAND_INITIAL_SEND = "state"
-	NUMBER_USER          = "number_user"
-	ASK_WRITE            = "write"
-	GET_WRITE            = "can_write"
-	STOP_WRITE           = "can_not_write"
+	commandInitialAsk  = "get_initial"
+	commandInitialGet  = "current_state"
+	commandInitialSend = "state"
+	commandNumberUser  = "number_user"
+	commandAskWrite    = "write"
+	commandGetWrite    = "can_write"
+	commandStopWrite   = "can_not_write"
 )
 
 type writer struct {
@@ -71,7 +71,7 @@ func (w *writer) AddNew(conn *websocket.Conn) error {
 	key := strconv.Itoa(w.counter)
 	w.counter++
 
-	c := command{Comm: COMMAND_INITIAL_ASK}
+	c := command{Comm: commandInitialAsk}
 	// Get initial state
 	initialState := ""
 initialLoop:
@@ -99,7 +99,7 @@ initialLoop:
 		}
 	}
 
-	c = command{Comm: COMMAND_INITIAL_SEND, Data: initialState}
+	c = command{Comm: commandInitialSend, Data: initialState}
 	err := conn.WriteJSON(&c)
 	if err != nil {
 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure) {
@@ -114,7 +114,7 @@ initialLoop:
 
 	log.Println(w.Key, "added:", key)
 
-	w.push(command{Comm: NUMBER_USER, Data: strconv.Itoa(len(w.connections))}, "")
+	w.push(command{Comm: commandNumberUser, Data: strconv.Itoa(len(w.connections))}, "")
 
 	return nil
 }
@@ -134,7 +134,7 @@ func (w *writer) Remove(key string) {
 
 		log.Println(w.Key, "removed:", key)
 
-		w.push(command{Comm: NUMBER_USER, Data: strconv.Itoa(len(w.connections))}, "")
+		w.push(command{Comm: commandNumberUser, Data: strconv.Itoa(len(w.connections))}, "")
 	}()
 }
 
@@ -171,7 +171,7 @@ func (w *writer) changeActive(key string) {
 		w.l.Lock()
 		conn := w.connections[w.active]
 		if conn != nil {
-			c := command{Comm: STOP_WRITE}
+			c := command{Comm: commandStopWrite}
 			err := conn.WriteJSON(&c)
 			if err != nil {
 				w.Remove(key)
@@ -187,7 +187,7 @@ func (w *writer) changeActive(key string) {
 		w.active = key
 		conn = w.connections[key]
 		if conn != nil {
-			c := command{Comm: GET_WRITE}
+			c := command{Comm: commandGetWrite}
 			err := conn.WriteJSON(&c)
 			if err != nil {
 				w.Remove(key)
@@ -211,7 +211,7 @@ func writerWorker(conn *websocket.Conn, key string, w *writer) {
 			return
 		}
 		switch c.Comm {
-		case COMMAND_INITIAL_GET:
+		case commandInitialGet:
 			w.initial.l.Lock()
 			select {
 			case w.initial.c <- c.Data:
@@ -220,7 +220,7 @@ func writerWorker(conn *websocket.Conn, key string, w *writer) {
 				log.Println(w.Key, key, "get initial:", "channel blocked")
 			}
 			w.initial.l.Unlock()
-		case COMMAND_INITIAL_SEND:
+		case commandInitialSend:
 			w.l.Lock()
 			currentActive := w.active
 			w.l.Unlock()
@@ -229,7 +229,7 @@ func writerWorker(conn *websocket.Conn, key string, w *writer) {
 				return
 			}
 			w.push(c, key)
-		case ASK_WRITE:
+		case commandAskWrite:
 			w.changeActive(key)
 		default:
 			log.Println(w.Key, key, "unknown control:", c.Comm)

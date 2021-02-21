@@ -57,6 +57,8 @@ func Format(b []byte) template.HTML {
 	return template.HTML(policy.SanitizeBytes(buf.Bytes()))
 }
 
+// RandomString returns a random string.
+// Caller should make no assumptions on content or length.
 func RandomString() string {
 	b := make([]byte, randomStringLength)
 	_, err := rand.Read(b)
