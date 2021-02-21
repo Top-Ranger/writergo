@@ -20,7 +20,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
@@ -43,7 +42,7 @@ var config ConfigStruct
 
 func loadConfig(path string) (ConfigStruct, error) {
 	log.Printf("main: Loading config (%s)", path)
-	b, err := ioutil.ReadFile(path)
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return ConfigStruct{}, errors.New(fmt.Sprintln("Can not read config.json:", err))
 	}
