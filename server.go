@@ -155,6 +155,8 @@ func initialiseServer() error {
 		if strings.HasPrefix(path, "css/") {
 			// special case
 			path = strings.TrimPrefix(path, "css/")
+			rw.Header().Set("ETag", etag)
+			rw.Header().Set("Cache-Control", "public, max-age=43200")
 			rw.Header().Set("Content-Type", "text/css")
 			err := cssTemplates.ExecuteTemplate(rw, path, struct{ ServerPath string }{config.ServerPath})
 			if err != nil {
