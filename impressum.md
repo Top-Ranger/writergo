@@ -1,6 +1,6 @@
-## Impressum
+## Legal notice
 
-Put your impressum here.
+Put your legal notice here.
 
 ## Haftungsausschluss
 
