@@ -6,5 +6,5 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/microcosm-cc/bluemonday v1.0.18
 	github.com/yuin/goldmark v1.4.7
-	golang.org/x/net v0.0.0-20220225143145-3bcbab3f74ef // indirect
+	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 )
