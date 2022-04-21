@@ -64,7 +64,7 @@ func loadConfig(path string) (ConfigStruct, error) {
 }
 
 func printInfo() {
-	log.Println("QWriterGo!")
+	log.Println("WriterGo!")
 	bi, ok := debug.ReadBuildInfo()
 	if !ok {
 		log.Print("- no build info found")
