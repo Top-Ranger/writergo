@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"strings"
 	"syscall"
 )
@@ -62,7 +63,34 @@ func loadConfig(path string) (ConfigStruct, error) {
 	return c, nil
 }
 
+func printInfo() {
+	log.Println("QWriterGo!")
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		log.Print("- no build info found")
+		return
+	}
+
+	log.Printf("- go version: %s", bi.GoVersion)
+	for _, s := range bi.Settings {
+		switch s.Key {
+		case "-tags":
+			log.Printf("- build tags: %s", s.Value)
+		case "vcs.revision":
+			l := 7
+			if len(s.Value) > 7 {
+				s.Value = s.Value[:l]
+			}
+			log.Printf("- commit: %s", s.Value)
+		case "vcs.modified":
+			log.Printf("- files modified: %s", s.Value)
+		}
+	}
+}
+
 func main() {
+	printInfo()
+
 	configPath := flag.String("config", "./config.json", "Path to json config for WriterGo!")
 	flag.Parse()
 
