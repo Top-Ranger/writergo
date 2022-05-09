@@ -16,6 +16,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"strconv"
 	"sync"
@@ -25,7 +26,6 @@ import (
 )
 
 const (
-	commandInitialAsk  = "get_initial"
 	commandInitialGet  = "current_state"
 	commandInitialSend = "state"
 	commandNumberUser  = "number_user"
@@ -40,10 +40,11 @@ type writer struct {
 	l           sync.Mutex
 	connections map[string]*websocket.Conn
 	counter     int
-	initial     struct {
-		l sync.Mutex
-		c chan string
-	}
+	ctx         context.Context
+	cancel      context.CancelFunc
+
+	currentL sync.Mutex
+	current  string
 
 	active string
 
@@ -55,6 +56,17 @@ type command struct {
 	Data string
 }
 
+func (w *writer) Init() error {
+	var err error
+	w.current, err = ds.LoadWriter(w.Key)
+	if err != nil {
+		log.Println(w.Key, "can not read initial state:", err)
+	}
+	w.ctx, w.cancel = context.WithCancel(context.Background())
+	go w.backupWorker()
+	return nil
+}
+
 func (w *writer) AddNew(conn *websocket.Conn) error {
 	w.l.Lock()
 	defer w.l.Unlock()
@@ -63,43 +75,13 @@ func (w *writer) AddNew(conn *websocket.Conn) error {
 		w.connections = make(map[string]*websocket.Conn)
 	}
 
-	// Create new channel to avoid old data
-	w.initial.l.Lock()
-	w.initial.c = make(chan string, len(w.connections))
-	w.initial.l.Unlock()
-
 	key := strconv.Itoa(w.counter)
 	w.counter++
 
-	c := command{Comm: commandInitialAsk}
-	// Get initial state
-	initialState := ""
-initialLoop:
-	for k := range w.connections {
-		err := w.connections[k].WriteJSON(&c)
-		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure) {
-				log.Println(w.Key, k, "ask initial state:", err)
-			}
-			w.Remove(k)
-			continue initialLoop
-		}
-
-		t := time.NewTimer(time.Duration(config.SyncSeconds) * time.Second)
-		select {
-		case initialState = <-w.initial.c:
-			if !t.Stop() {
-				<-t.C
-			}
-			break initialLoop
-		case <-t.C:
-			log.Println(w.Key, k, "initial timeout:", err)
-			w.Remove(k)
-			continue initialLoop
-		}
-	}
-
-	c = command{Comm: commandInitialSend, Data: initialState}
+	w.currentL.Lock()
+	current := w.current
+	w.currentL.Unlock()
+	c := command{Comm: commandInitialSend, Data: current}
 	err := conn.WriteJSON(&c)
 	if err != nil {
 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure) {
@@ -143,6 +125,16 @@ func (w *writer) CanBeDeleted() bool {
 	defer w.l.Unlock()
 
 	return len(w.connections) == 0
+}
+
+func (w *writer) Delete() error {
+	w.l.Lock()
+	defer w.l.Unlock()
+
+	log.Println(w.Key, "done")
+
+	w.cancel()
+	return ds.SaveWriter(w.Key, w.current)
 }
 
 func (w *writer) push(data command, sender string) {
@@ -211,15 +203,6 @@ func writerWorker(conn *websocket.Conn, key string, w *writer) {
 			return
 		}
 		switch c.Comm {
-		case commandInitialGet:
-			w.initial.l.Lock()
-			select {
-			case w.initial.c <- c.Data:
-				// Do nothing
-			default:
-				log.Println(w.Key, key, "get initial:", "channel blocked")
-			}
-			w.initial.l.Unlock()
 		case commandInitialSend:
 			w.l.Lock()
 			currentActive := w.active
@@ -228,11 +211,35 @@ func writerWorker(conn *websocket.Conn, key string, w *writer) {
 				w.Remove(key)
 				return
 			}
+			w.currentL.Lock()
+			w.current = c.Data
+			w.currentL.Unlock()
 			w.push(c, key)
 		case commandAskWrite:
 			w.changeActive(key)
 		default:
 			log.Println(w.Key, key, "unknown control:", c.Comm)
+		}
+	}
+}
+
+func (w *writer) backupWorker() {
+	t := time.NewTicker(time.Duration(config.GCMinutes) * time.Minute)
+	for {
+		select {
+		case <-t.C:
+			log.Println(w.Key, "starting backup")
+			w.currentL.Lock()
+			current := w.current
+			w.currentL.Unlock()
+
+			err := ds.SaveWriter(w.Key, current)
+			if err != nil {
+				log.Println(w.Key, "can not backup data:", err)
+			}
+		case <-w.ctx.Done():
+			t.Stop()
+			return
 		}
 	}
 }

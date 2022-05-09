@@ -29,7 +29,7 @@
   </header>
 
   <div class="message">
-      <p>{{.Translation.NoSave}}</p>
+      <p>{{if .PermanentSave}}<strong>{{.Translation.Save}}</strong>{{else}}{{.Translation.NoSave}}{{end}}</p>
       <p>{{.Translation.OneUser}}</p>
   </div>
 
@@ -141,14 +141,6 @@
 
     ws.onmessage = function(event){
       var data = JSON.parse(event.data);
-      if(data.Comm === "get_initial") {
-        try {
-          ws.send(JSON.stringify({"Comm": "current_state", "Data": JSON.stringify(quill.getContents())}));
-        } catch (e) {
-          console.log(e);
-          ws.close(4000, e.toString().substring(0, 40));
-        }
-      }
       if(data.Comm === "state") {
         try {
           if(!active && data.Data != "") {

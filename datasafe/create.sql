@@ -1,0 +1,2 @@
+CREATE DATABASE writergo;
+CREATE TABLE writergo.writer (`key` VARCHAR(600) NOT NULL, data LONGTEXT NOT NULL, PRIMARY KEY(`key`));

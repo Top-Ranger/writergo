@@ -89,9 +89,10 @@ type textTemplateStruct struct {
 }
 
 type mainTemplateStruct struct {
-	SyncTime    int
-	Translation Translation
-	ServerPath  string
+	SyncTime      int
+	Translation   Translation
+	ServerPath    string
+	PermanentSave bool
 }
 
 func initialiseServer() error {
@@ -249,6 +250,7 @@ func rootHandle(rw http.ResponseWriter, r *http.Request) {
 		if w == nil {
 			w = new(writer)
 			w.Key = key
+			w.Init()
 			writerMap[key] = w
 		}
 
@@ -260,9 +262,10 @@ func rootHandle(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	td := mainTemplateStruct{
-		SyncTime:    config.SyncSeconds * 1000,
-		Translation: GetDefaultTranslation(),
-		ServerPath:  config.ServerPath,
+		SyncTime:      config.SyncSeconds * 1000,
+		Translation:   GetDefaultTranslation(),
+		ServerPath:    config.ServerPath,
+		PermanentSave: ds.IsPermanent(),
 	}
 	err := mainTemplate.Execute(rw, td)
 	if err != nil {
@@ -311,6 +314,13 @@ func StopServer() {
 		log.Println("server:", err)
 	}
 	stopGC <- true
+
+	for k := range writerMap {
+		err := writerMap[k].Delete()
+		if err != nil {
+			log.Printf("server: error while deleting %s: %s", k, err.Error())
+		}
+	}
 }
 
 func serverGCWorker() {
@@ -332,6 +342,10 @@ func serverGCWorker() {
 			for k := range writerMap {
 				if writerMap[k].CanBeDeleted() {
 					log.Println("gc:", "removed", k)
+					err := writerMap[k].Delete()
+					if err != nil {
+						log.Printf("server: error while deleting %s: %s", k, err.Error())
+					}
 					delete(writerMap, k)
 				}
 			}

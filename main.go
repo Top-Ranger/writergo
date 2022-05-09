@@ -26,20 +26,26 @@ import (
 	"runtime/debug"
 	"strings"
 	"syscall"
+
+	_ "github.com/Top-Ranger/writergo/datasafe"
+	"github.com/Top-Ranger/writergo/registry"
 )
 
 // ConfigStruct contains all configuration options for PollGo!
 type ConfigStruct struct {
-	Language      string
-	Address       string
-	PathImpressum string
-	PathDSGVO     string
-	SyncSeconds   int
-	GCMinutes     int
-	ServerPath    string
+	Language       string
+	Address        string
+	PathImpressum  string
+	PathDSGVO      string
+	SyncSeconds    int
+	GCMinutes      int
+	ServerPath     string
+	DataSafe       string
+	DataSafeConfig string
 }
 
 var config ConfigStruct
+var ds registry.DataSafe
 
 func loadConfig(path string) (ConfigStruct, error) {
 	log.Printf("main: Loading config (%s)", path)
@@ -100,6 +106,18 @@ func main() {
 	}
 	config = c
 
+	log.Printf("main: Using DataSafe '%s'", config.DataSafe)
+	var found bool
+	ds, found = registry.GetDataSafe(config.DataSafe)
+	if !found {
+		log.Panicln("unknown data safe", config.DataSafe)
+	}
+
+	err = ds.LoadConfig([]byte(config.DataSafeConfig))
+	if err != nil {
+		panic(err)
+	}
+
 	err = SetDefaultTranslation(config.Language)
 	if err != nil {
 		log.Panicf("main: Error setting default language '%s': %s", config.Language, err.Error())
@@ -115,6 +133,7 @@ func main() {
 
 	for range s {
 		StopServer()
+		ds.FlushAndClose()
 		return
 	}
 }

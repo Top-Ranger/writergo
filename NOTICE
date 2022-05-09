@@ -18,7 +18,12 @@ go build
 A sample configration can be found at 'config.json'.
 To create a new file, simply browse to the future location of the file.
 No seperate creation is needed.
-All data is only saved locally by the clients and not by the server.
+
+
+You can use one of the provided DataSafes (or write your own) to store data.
+Use the "nil" DataSafe to never store any data (or keep DataSafe empty).
+Use the "File" DataSafe to store data as files. DataSafeConfig is the target directory.
+Use the "MySQL" DataSafe to store data at a MySQL/MariaDB server. DataSafeConfig is the DSN. Use go build -tags="mysql" for building.
 
 WriterGo! is licenced under Apache-2.0.
 
