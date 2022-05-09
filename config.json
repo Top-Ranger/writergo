@@ -6,6 +6,6 @@
    "SyncSeconds": 1,
    "GCMinutes": 15,
    "ServerPath": "/",
-   "DataSafe": "File",
-   "DataSafeConfig": "data/" 
+   "DataSafe": "Nil",
+   "DataSafeConfig": "" 
 }
