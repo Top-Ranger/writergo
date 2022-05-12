@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ func (w *writer) Init() error {
 	if err != nil {
 		log.Println(w.Key, "can not read initial state:", err)
 	}
+	w.connections = make(map[string]*websocket.Conn)
 	w.ctx, w.cancel = context.WithCancel(context.Background())
 	go w.backupWorker()
 	return nil
@@ -70,10 +71,6 @@ func (w *writer) Init() error {
 func (w *writer) AddNew(conn *websocket.Conn) error {
 	w.l.Lock()
 	defer w.l.Unlock()
-
-	if w.connections == nil {
-		w.connections = make(map[string]*websocket.Conn)
-	}
 
 	key := strconv.Itoa(w.counter)
 	w.counter++
