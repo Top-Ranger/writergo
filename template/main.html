@@ -35,9 +35,9 @@
 
   <div id="app">
       <p>{{.Translation.ConnectedUser}}: <input id="user" type="text" readonly></p>
-      <h1 class="offline">{{.Translation.ConnectionLost}}</h1>
+      <h1 class="offline">{{.Translation.ConnectionLost}}{{if not .PermanentSave}} {{.Translation.ConnectionLostNotPermanentlySavedBrackets}}{{end}}.</h1>
       <div id="editor"></div>
-      <h1 class="offline">{{.Translation.ConnectionLost}}</h1>
+      <h1 class="offline">{{.Translation.ConnectionLost}}{{if not .PermanentSave}} {{.Translation.ConnectionLostNotPermanentlySavedBrackets}}{{end}}.</h1>
       <p><button id="active">{{.Translation.ButtonActive}}</button> <button id="downloadHTML">{{.Translation.ButtonDownloadHTML}}</button> <button id="downloadDelta">{{.Translation.ButtonDownloadDelta}}</button></p>
       <p><input type="file" id="uploadDelta" disabled/> <button id="uploadDeltaButton" disabled>{{.Translation.ButtonUploadDelta}}</button></p>
   </div>
@@ -196,12 +196,14 @@
       }
     };
 
+    {{if not .PermanentSave}}
     window.onbeforeunload = function(e) {
       if(quill.getText() !== "\n") {
         e.preventDefault();
         e.returnValue = '';
       }
     };
+    {{end}}
 
     function pushState() {
       if(active && changed) {
