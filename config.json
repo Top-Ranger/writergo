@@ -4,7 +4,7 @@
    "PathImpressum": "impressum.md",
    "PathDSGVO": "DSGVO.md",
    "SyncSeconds": 1,
-   "GCMinutes": 15,
+   "GCMinutes": 5,
    "ServerPath": "/",
    "DataSafe": "Nil",
    "DataSafeConfig": "" 

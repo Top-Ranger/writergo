@@ -8,7 +8,7 @@ Für den sicheren und stabilen Betrieb der Website werden technische Daten sowie
 
 ## Arbeiten an einem Dokument
 
-Sie haben unter Umständen die Möglichkeit, an einem Dokument mit anderen zu arbeiten oder ein solches zu erstellen. In diesem Fall werden die Daten sowie sämtliche Änderungen an dem Dokument von Ihnen an Dritte weitergeleitet, die ebenfalls an dem selben Dokument arbeiten auf Grundlage ihrer Einwilligung nach DSGVO Art. 6. Die Daten werden auf dem Server nicht dauerhaft gespeichert, sondern nur temporär zur Synchronisation.
+Sie haben unter Umständen die Möglichkeit, an einem Dokument mit anderen zu arbeiten oder ein solches zu erstellen. In diesem Fall werden die Daten sowie sämtliche Änderungen an dem Dokument von Ihnen an Dritte weitergeleitet, die ebenfalls an dem selben Dokument arbeiten auf Grundlage ihrer Einwilligung nach DSGVO Art. 6. Die Daten werden auf dem Server nicht dauerhaft gespeichert, sondern nur temporär für kurze Zeit zur Synchronisation.
 
 ## Ihre Rechte
 

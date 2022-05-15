@@ -6,7 +6,7 @@
     "ConnectionLost": "Verbindung verloren. Bitte Seite neu laden",
     "ConnectionLostNotPermanentlySavedBrackets": "(Inhalt kann verloren gehen)",
     "ConnectedUser": "Verbundene Benutzer",
-    "NoSave": "Der Inhalt dieser Seite wird nicht auf der Seite gespeichert. Er geht verloren, sobald der letzte Benutzer die Seite verlässt.",
+    "NoSave": "Der Inhalt dieser Seite wird nicht auf der Seite gespeichert. Er geht verloren, sobald der letzte Benutzer die Seite verlässt (der Inhalt wird kurzzeitig auf dem Server zwischengespeichert).",
     "Save": "Der Inhalt dieser Seite wird gespeichert. Ruft jemand die Seite später auf, so wird er den letzten Stand sehen.",
     "OneUser": "Zu jedem Zeitpunkt kann immer nur ein Benutzer zur Zeit Schreibrechte haben. Werden Schreibrechte von einem Nutzer angefragt, so verliert der andere Benutzer diese.",
     "ButtonActive": "Schreibrechte anfragen",
