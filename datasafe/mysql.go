@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/Top-Ranger/writergo/registry"
 	_ "github.com/go-sql-driver/mysql"
@@ -94,6 +95,9 @@ func (m *MySQL) LoadConfig(data []byte) error {
 	if err != nil {
 		return fmt.Errorf("mysql: can not open '%s': %w", m.dsn, err)
 	}
+	db.SetConnMaxLifetime(time.Minute * 1)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
 	m.db = db
 	return nil
 }
