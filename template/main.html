@@ -36,6 +36,7 @@
   <div id="app">
       <p>{{.Translation.ConnectedUser}}: <input id="user" type="text" readonly></p>
       <h1 class="offline">{{.Translation.ConnectionLost}}{{if not .PermanentSave}} {{.Translation.ConnectionLostNotPermanentlySavedBrackets}}{{end}}.</h1>
+      <p><button id="active_top">{{.Translation.ButtonActive}}</button></p>
       <div id="editor"></div>
       <h1 class="offline">{{.Translation.ConnectionLost}}{{if not .PermanentSave}} {{.Translation.ConnectionLostNotPermanentlySavedBrackets}}{{end}}.</h1>
       <p><button id="active">{{.Translation.ButtonActive}}</button> <button id="downloadHTML">{{.Translation.ButtonDownloadHTML}}</button> <button id="downloadDelta">{{.Translation.ButtonDownloadDelta}}</button></p>
@@ -49,6 +50,15 @@
   </footer>
 
   <script>
+    function setActive(b) {
+      if(b) {
+        document.getElementById("active_top").removeAttribute("disabled");
+        document.getElementById("active").removeAttribute("disabled");
+      } else {
+        document.getElementById("active_top").disabled = true;
+        document.getElementById("active").disabled = true;
+      }
+    }
     function validateDelta(delta) {
       if(!delta.ops) {
         return 'ops missing'
@@ -131,7 +141,7 @@
     ws.onclose = function () {
       setOffline(true);
       document.getElementById("user").value = "";
-      document.getElementById("active").disabled = true;
+      setActive(false);
       quill.disable();
     };
 
@@ -173,7 +183,7 @@
           quill.disable()
           pushState();
           active = false;
-          document.getElementById("active").removeAttribute("disabled");
+          setActive(true);
           document.getElementById("uploadDeltaButton").disabled = true;
           document.getElementById("uploadDelta").disabled = true;
         } catch (e) {
@@ -216,15 +226,18 @@
       changed = true;
     });
 
-    document.getElementById("active").addEventListener("click", function(){
-      document.getElementById("active").disabled = true; 
+    var activeButtonListener = function(){
+      setActive(false);
       try{
         ws.send(JSON.stringify({"Comm": "write"}));
       } catch (e) {
         console.log(e);
         ws.close(4000, e.toString().substring(0, 40));
       }
-      });
+    };
+
+    document.getElementById("active").addEventListener("click", activeButtonListener);
+    document.getElementById("active_top").addEventListener("click", activeButtonListener);
 
       var downloadLink = document.createElement('a');
       
